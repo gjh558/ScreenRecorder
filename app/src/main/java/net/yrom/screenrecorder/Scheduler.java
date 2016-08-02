@@ -9,26 +9,22 @@ import java.util.Queue;
 public class Scheduler extends Thread{
 
     private Queue<FrameData> frameDatas;
-    private Queue<ClientInstance> clientInstances;
-
-    private VideoServer mVideoServer;
     private ScreenRecorder mScreenRecoder;
+    private SocketClient mSocketClient;
 
     private boolean isStop = false;
+    private String ip;
 
-    public Scheduler(VideoServer videoServer, ScreenRecorder screenRecorder) {
-        mVideoServer = videoServer;
+    public Scheduler(ScreenRecorder screenRecorder, String ip) {
         mScreenRecoder = screenRecorder;
+        this.ip = ip;
 
-        clientInstances = mVideoServer.getClientInstances();
         frameDatas = mScreenRecoder.getFrameDatas();
         isStop = false;
     }
 
     private void closeClients() {
-        while(!clientInstances.isEmpty()) {
-            clientInstances.poll().Close();
-        }
+
     }
 
     public void Stop(){
@@ -36,32 +32,21 @@ public class Scheduler extends Thread{
     }
     public void run() {
 
-        mVideoServer.init();
+        mSocketClient = new SocketClient(ip);
 
-        mVideoServer.start();
+        //send id ... to tcp server
+
+
         mScreenRecoder.start();
 
         while (!isStop) {
-            if (!clientInstances.isEmpty() && !frameDatas.isEmpty()) {
+            if (!frameDatas.isEmpty()) {
 
                 FrameData frameData = frameDatas.poll();
-
-                Iterator<ClientInstance> it = clientInstances.iterator();
-
-                while(it.hasNext()) {
-
-                    ClientInstance c = it.next();
-                    int res = c.Write(frameData.data, frameData.length);
-                    if (res == -1) {
-                        c.Close();
-                        it.remove();
-                    }
-                }
+                int res = mSocketClient.sendData(frameData.data, frameData.length);
             }
         }
-
-        closeClients();
-        mVideoServer.Stop();
+        mSocketClient.Stop();
         mScreenRecoder.quit();
     }
 

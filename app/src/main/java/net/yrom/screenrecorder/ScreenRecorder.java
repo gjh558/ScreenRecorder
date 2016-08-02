@@ -187,11 +187,11 @@ public class ScreenRecorder extends Thread {
                 frameDatas.add(frameData);
             }
 
-//            try {
-//                fos.write(outData);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            try {
+                fos.write(outData);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             Log.i(TAG, "sent " + mBufferInfo.size + " bytes to muxer...");
         }
     }

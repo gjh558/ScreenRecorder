@@ -32,11 +32,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private static final int REQUEST_CODE = 1;
     private MediaProjectionManager mMediaProjectionManager;
     private ScreenRecorder mRecorder;
-    private VideoServer mServer;
     private Button mButton;
     private Button mButtonStop;
 
     private Scheduler mScheduler;
+
+    private String ip = "192.168.1.106";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +64,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 "record-" + width + "x" + height + "-" + System.currentTimeMillis() + ".mp4");
         final int bitrate = 2000000;
         mRecorder = new ScreenRecorder(width, height, bitrate, 1, mediaProjection, file.getAbsolutePath());
-        mServer = new VideoServer();
-        mScheduler = new Scheduler(mServer, mRecorder);
+        mScheduler = new Scheduler(mRecorder, ip);
         mScheduler.start();
 
         //mButton.setText("Stop Recorder");

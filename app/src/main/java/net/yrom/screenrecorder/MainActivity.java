@@ -24,6 +24,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.File;
@@ -34,10 +35,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private ScreenRecorder mRecorder;
     private Button mButton;
     private Button mButtonStop;
+    private EditText editTextId;
+    private EditText editTextRoomId;
+    private EditText editTextIp;
+
+    private String teacherId;
+    private String roomId;
 
     private Scheduler mScheduler;
 
-    private String ip = "192.168.1.106";
+    private String ip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +54,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mButtonStop = (Button)findViewById(R.id.button2);
         mButton.setOnClickListener(this);
         mButtonStop.setOnClickListener(this);
+
+        editTextId = (EditText)findViewById(R.id.editText_id);
+        editTextRoomId = (EditText)findViewById(R.id.editText_room);
+        editTextIp = (EditText)findViewById(R.id.editTextIp);
         //noinspection ResourceType
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
     }
@@ -58,17 +69,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
             return;
         }
         // video size
-        final int width = 360;
-        final int height = 640;
+        final int width = 720;
+        final int height = 1080;
         File file = new File(Environment.getExternalStorageDirectory(),
                 "record-" + width + "x" + height + "-" + System.currentTimeMillis() + ".mp4");
-        final int bitrate = 2000000;
+        final int bitrate = 1000000;
         mRecorder = new ScreenRecorder(width, height, bitrate, 1, mediaProjection, file.getAbsolutePath());
-        mScheduler = new Scheduler(mRecorder, ip);
+        mScheduler = new Scheduler(MainActivity.this, mRecorder, ip, teacherId, roomId);
         mScheduler.start();
 
         //mButton.setText("Stop Recorder");
-        Toast.makeText(this, "Screen recorder is running...", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Screen recorder is running...", Toast.LENGTH_SHORT).show();
         moveTaskToBack(true);
     }
 
@@ -79,8 +90,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
         switch (Id) {
             case R.id.button:
                 if (mScheduler == null) {
-                    Intent captureIntent = mMediaProjectionManager.createScreenCaptureIntent();
-                    startActivityForResult(captureIntent, REQUEST_CODE);
+                    teacherId = editTextId.getText().toString().trim();
+                    roomId = editTextRoomId.getText().toString().trim();
+                    ip = editTextIp.getText().toString().trim();
+                    if (teacherId.length() > 0 && roomId.length() > 0 && ip.length() > 0) {
+                        Intent captureIntent = mMediaProjectionManager.createScreenCaptureIntent();
+                        startActivityForResult(captureIntent, REQUEST_CODE);
+                    }else {
+                        Toast.makeText(this, "Please input valid ID and IP", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(this, "Screen recorder is running...", Toast.LENGTH_SHORT).show();
                 }

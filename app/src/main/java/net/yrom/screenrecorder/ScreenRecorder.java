@@ -50,8 +50,8 @@ public class ScreenRecorder extends Thread {
     private MediaProjection mMediaProjection;
     // parameters for the encoder
     private static final String MIME_TYPE = "video/avc"; // H.264 Advanced Video Coding
-    private static final int FRAME_RATE = 25; // 25 fps
-    private static final int IFRAME_INTERVAL = 2; // 10 seconds between I-frames
+    private static final int FRAME_RATE = 15; // 25 fps
+    private static final int IFRAME_INTERVAL = 1; // 10 seconds between I-frames
     private static final int TIMEOUT_US = 20 * 1000;
 
     private MediaCodec mEncoder;
@@ -89,11 +89,6 @@ public class ScreenRecorder extends Thread {
         //mVideoServerThread = new VideoServer();
     }
 
-
-    public ScreenRecorder(MediaProjection mp) {
-        // 480p 2Mbps
-        this(640, 480, 2000000, 1, mp, "/sdcard/test.mp4");
-    }
 
     /**
      * stop task
@@ -180,10 +175,13 @@ public class ScreenRecorder extends Thread {
             encodedData.get(outData, m_info.length, encodedData.limit());
             System.arraycopy(m_info, 0, outData, 0, m_info.length);
 
-            FrameData frameData = new FrameData(outData, outData.length);
+            FrameData frameData = new FrameData(outData, outData.length, mBufferInfo.presentationTimeUs);
 
 
             if (frameDatas.size() <= MAX_FRAME_CACHE) {
+                frameDatas.add(frameData);
+            } else {
+                frameDatas.poll();
                 frameDatas.add(frameData);
             }
 

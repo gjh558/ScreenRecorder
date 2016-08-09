@@ -8,13 +8,13 @@ public class FrameData {
     public int length;
     public int refrenceCount = 0;
 
-    public FrameData(byte[] video_data, int size) {
-        data = new byte[size + 4];
-        length = size + 4;
+    public FrameData(byte[] video_data, int size, long pts) {
+        data = new byte[size];
+        length = size;
 
-        byte[] video_size = Utility.uint32ToByteArray(size);
-        System.arraycopy(video_size, 0, data, 0, 4);
+//        byte[] video_size = Utility.uint32ToByteArray(size);
+//        System.arraycopy(video_size, 0, data, 0, 4);
 
-        System.arraycopy(video_data, 0, data, 4, size);
+        System.arraycopy(video_data, 0, data, 0, size);
     }
 }

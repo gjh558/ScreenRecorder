@@ -17,6 +17,7 @@ package net.yrom.screenrecorder;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
@@ -46,10 +47,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     private String ip;
 
+    //SharedPreferences settings;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mButton = (Button) findViewById(R.id.button);
         mButtonStop = (Button)findViewById(R.id.button2);
         mButton.setOnClickListener(this);
@@ -58,22 +61,53 @@ public class MainActivity extends Activity implements View.OnClickListener {
         editTextId = (EditText)findViewById(R.id.editText_id);
         editTextRoomId = (EditText)findViewById(R.id.editText_room);
         editTextIp = (EditText)findViewById(R.id.editTextIp);
-        //noinspection ResourceType
+
+//        settings = getSharedPreferences("SCREENSERVER", 0);
+//        if (checkPreviousSettings()) {
+//            editTextIp.setText(this.ip);
+//            editTextId.setText(this.teacherId);
+//            editTextRoomId.setText(this.roomId);
+//
+//        }
         mMediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
     }
 
+    public void onStop() {
+        super.onStop();
+    }
+//    private boolean checkPreviousSettings() {
+//        this.ip = settings.getString("IP", "");
+//        this.teacherId = settings.getString("ID", "");
+//        this.roomId = settings.getString("RID", "");
+//
+//        if (this.ip.length() <= 0 || this.teacherId.length() <= 0 || this.roomId.length() <= 0) {
+//            return false;
+//        } else {
+//            return true;
+//        }
+//    }
+//
+//    private void setSettings() {
+//        SharedPreferences.Editor editor = settings.edit();
+//
+//        editor.putString("IP", this.ip);
+//        editor.putString("ID", teacherId);
+//        editor.putString("RID", roomId);
+//        editor.commit();
+//    }
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         MediaProjection mediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, data);
         if (mediaProjection == null) {
             Log.e("@@", "media projection is null");
             return;
         }
+
         // video size
-        final int width = 720;
+        final int width = 720  ;
         final int height = 1080;
         File file = new File(Environment.getExternalStorageDirectory(),
                 "record-" + width + "x" + height + "-" + System.currentTimeMillis() + ".mp4");
-        final int bitrate = 1000000;
+        final int bitrate = 1500000;
         mRecorder = new ScreenRecorder(width, height, bitrate, 1, mediaProjection, file.getAbsolutePath());
         mScheduler = new Scheduler(MainActivity.this, mRecorder, ip, teacherId, roomId);
         mScheduler.start();
@@ -94,6 +128,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     roomId = editTextRoomId.getText().toString().trim();
                     ip = editTextIp.getText().toString().trim();
                     if (teacherId.length() > 0 && roomId.length() > 0 && ip.length() > 0) {
+
                         Intent captureIntent = mMediaProjectionManager.createScreenCaptureIntent();
                         startActivityForResult(captureIntent, REQUEST_CODE);
                     }else {

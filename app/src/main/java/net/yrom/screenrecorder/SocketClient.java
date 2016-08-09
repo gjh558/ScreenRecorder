@@ -18,7 +18,7 @@ public class SocketClient {
     public SocketClient(String ip)
     {
         try {
-            mSocket = new Socket("10.112.116.181", 12345);
+            mSocket = new Socket(ip, 12345);
             outputStream = mSocket.getOutputStream();
             inputStream = mSocket.getInputStream();
         } catch (IOException e) {
